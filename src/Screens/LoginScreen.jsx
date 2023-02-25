@@ -16,39 +16,54 @@ import {
   Keyboard,
 } from 'react-native';
 
-SplashScreen.preventAutoHideAsync();
 const image = require('../assets/photo.png');
 const initialState = {
   email: '',
   password: '',
 };
-const windowDimensions = Dimensions.get('window').width - 20 * 2;
-const screenDimensions = Dimensions.get('screen');
+const windowDimensions = Dimensions.get('window').width - 16 * 2;
+const screenDimensions = Dimensions.get('window').height;
 
 export default function LoginScreen() {
+  SplashScreen.preventAutoHideAsync();
   const [fontsLoaded] = useFonts({
-    RobotoMedium: require('../assets/fonts/Roboto/Roboto-Medium.ttf'),
+    'Roboto-Regular': require('../assets/fonts/Roboto/Roboto-Regular.ttf'),
+    'Roboto-Medium': require('../assets/fonts/Roboto/Roboto-Medium.ttf'),
   });
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [state, setState] = useState(initialState);
   const [dimensions, setDimensions] = useState(windowDimensions);
+  const [dimensionsHeigth, setDimensionsHeigth] = useState(screenDimensions);
+
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  const [state, setState] = useState(initialState);
+  const [showPassword, setShowPassword] = useState(true);
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [loginFocus, setLoginFocus] = useState(false);
+  const [passwordFocus, setPasswordFocus] = useState(false);
+
   useEffect(() => {
     const onChange = () => {
       const width = Dimensions.get('window').width - 16 * 2;
-      console.log('width', width);
+      const height = Dimensions.get('window').height;
+      console.log(dimensions);
       setDimensions(width);
+      setDimensionsHeigth(height);
     };
-    Dimensions.addEventListener('change', onChange);
-    return () => {
-      Dimensions.removeEventListener('change', onChange);
-    };
-  }, []);
+    const subscription = Dimensions.addEventListener('change', onChange);
+    return () => subscription.remove();
+  });
 
+  const focusInputStyle = focus => {
+    return focus ? { ...styles.input, ...styles.inputFocus } : styles.input;
+  };
   const keyboardHide = () => {
-    setIsShowKeyboard(false);
     Keyboard.dismiss();
-    console.log(state);
+    setIsShowKeyboard(false);
+  };
+  const onSubmit = () => {
     setState(initialState);
+    setShowPassword(true);
+    console.log(state);
   };
 
   const onLayoutRootView = useCallback(async () => {
@@ -59,26 +74,42 @@ export default function LoginScreen() {
   if (!fontsLoaded) {
     return null;
   }
+  const passwordShown = () => {
+    setShowPassword(prevState => !prevState);
+  };
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      <ImageBackground
+        source={image}
+        resizeMode="cover"
+        style={{
+          ...styles.image,
+          height: dimensionsHeigth,
+          width: Dimensions.get('window').width,
+        }}
+      >
+        <TouchableWithoutFeedback onPress={keyboardHide}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <View
-              style={{ ...styles.form, marginBottom: isShowKeyboard ? 0 : 0 }}
+              style={{ ...styles.form, marginTop: isShowKeyboard ? 0 : 47 }}
             >
               <View style={{ width: dimensions }}>
                 <View style={styles.header}>
                   <Text style={styles.headerTitle}>Войти</Text>
                 </View>
+
                 <View>
                   <TextInput
-                    style={styles.input}
+                    style={focusInputStyle(emailFocus)}
                     textAlign={'left'}
-                    onFocus={() => setIsShowKeyboard(true)}
+                    onFocus={() => {
+                      setIsShowKeyboard(true);
+                      setEmailFocus(true);
+                    }}
+                    onBlur={() => setEmailFocus(false)}
                     placeholder="Адрес электронной почты"
                     value={state.email}
                     onChangeText={value =>
@@ -88,25 +119,46 @@ export default function LoginScreen() {
                 </View>
                 <View style={{ marginTop: 16 }}>
                   <TextInput
-                    style={styles.input}
+                    style={focusInputStyle(passwordFocus)}
                     textAlign={'left'}
-                    secureTextEntry={true}
-                    onFocus={() => setIsShowKeyboard(true)}
+                    secureTextEntry={showPassword}
+                    onFocus={() => {
+                      setIsShowKeyboard(true);
+                      setPasswordFocus(true);
+                    }}
+                    onBlur={() => setPasswordFocus(false)}
                     placeholder="Пароль"
+                    maxLength={16}
                     value={state.password}
                     onChangeText={value =>
-                      setState(prevState => ({ ...prevState, password: value }))
+                      setState(prevState => ({
+                        ...prevState,
+                        password: value,
+                      }))
                     }
                   />
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    style={styles.passwordShowBtn}
+                    onPress={passwordShown}
+                  >
+                    <Text style={styles.registerLinkTitle}>
+                      {showPassword ? 'Показать' : 'Cкрыть'}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
+
                 <TouchableOpacity
                   style={styles.btn}
                   activeOpacity={0.8}
-                  onPress={keyboardHide}
+                  onPress={onSubmit}
                 >
                   <Text style={styles.btnTitle}>Войти</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.link} activeOpacity={0.6}>
+                <TouchableOpacity
+                  style={{ ...styles.link, marginBottom: 111 }}
+                  activeOpacity={0.6}
+                >
                   <Text style={styles.linkTitle}>
                     Нет аккаунта? Зарегистрироваться
                   </Text>
@@ -114,9 +166,9 @@ export default function LoginScreen() {
               </View>
             </View>
           </KeyboardAvoidingView>
-        </ImageBackground>
-      </View>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </ImageBackground>
+    </View>
   );
 }
 const styles = StyleSheet.create({
@@ -125,31 +177,40 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    justifyContent: 'center',
 
+    width: '100%',
     justifyContent: 'flex-end',
   },
+  form: {
+    paddingTop: 32,
+    borderTopStartRadius: 25,
+    borderTopEndRadius: 25,
+    backgroundColor: '#f0ffff',
+    alignItems: 'center',
+  },
+
   input: {
     borderWidth: 1,
     borderColor: '#E8E8E8',
     backgroundColor: '#F6F6F6',
-
     borderRadius: 8,
     padding: 16,
-    // height: 50,
-
+    height: 50,
+    fontStyle: '400',
     color: '#212121',
     fontSize: 16,
   },
-  form: {
-    borderTopStartRadius: 25,
-    borderTopEndRadius: 25,
-    backgroundColor: '#f0ffff',
-    height: 489,
-    alignItems: 'center',
+  inputFocus: { backgroundColor: '#fff', borderColor: '#FF6C00' },
+  passwordShowBtn: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
   },
-  formBox: {
-    // marginHorizontal:16
+  registerLinkTitle: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 16,
+    color: '#1B4371',
+    alignItems: 'center',
   },
 
   btn: {
@@ -167,16 +228,15 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   header: {
-    marginTop: 32,
     marginBottom: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
   headerTitle: {
     fontSize: 30,
-    fontFamily: 'RobotoMedium',
+
     color: '#212121',
-    fontWeight: '500',
+    fontFamily: 'Roboto-Medium',
   },
   link: {
     justifyContent: 'center',
@@ -186,6 +246,6 @@ const styles = StyleSheet.create({
   linkTitle: {
     color: '#1B4371',
     fontSize: 16,
-    fontWeight: '400',
+    fontFamily: 'Roboto-Regular',
   },
 });

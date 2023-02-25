@@ -33,15 +33,17 @@ export default function RegistrationScreen() {
     'Roboto-Regular': require('../assets/fonts/Roboto/Roboto-Regular.ttf'),
     'Roboto-Medium': require('../assets/fonts/Roboto/Roboto-Medium.ttf'),
   });
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
-  const [state, setState] = useState(initialState);
+  const [dimensions, setDimensions] = useState(windowDimensions);
+  const [dimensionsHeigth, setDimensionsHeigth] = useState(screenDimensions);
 
-  const [showPassword, setShowOPassword] = useState(true);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+
+  const [state, setState] = useState(initialState);
+  const [showPassword, setShowPassword] = useState(true);
   const [emailFocus, setEmailFocus] = useState(false);
   const [loginFocus, setLoginFocus] = useState(false);
   const [passwordFocus, setPasswordFocus] = useState(false);
-  const [dimensions, setDimensions] = useState(windowDimensions);
-  const [dimensionsHeigth, setDimensionsHeigth] = useState(screenDimensions);
+
   useEffect(() => {
     const onChange = () => {
       const width = Dimensions.get('window').width - 16 * 2;
@@ -63,7 +65,7 @@ export default function RegistrationScreen() {
   };
   const onSubmit = () => {
     setState(initialState);
-    setShowOPassword(true);
+    setShowPassword(true);
     console.log(state);
   };
 
@@ -76,12 +78,20 @@ export default function RegistrationScreen() {
     return null;
   }
   const passwordShown = () => {
-    setShowOPassword(prevState => !prevState);
+    setShowPassword(prevState => !prevState);
   };
 
   return (
     <View style={styles.container} onLayout={onLayoutRootView}>
-      <ImageBackground source={image} resizeMode="cover" style={styles.image}>
+      <ImageBackground
+        source={image}
+        resizeMode="cover"
+        style={{
+          ...styles.image,
+          height: dimensionsHeigth,
+          width: Dimensions.get('window').width,
+        }}
+      >
         <TouchableWithoutFeedback onPress={keyboardHide}>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -190,7 +200,7 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    width: '100%',
+
     justifyContent: 'flex-end',
   },
   form: {
@@ -260,7 +270,6 @@ const styles = StyleSheet.create({
     fontWeight: '400',
   },
   header: {
-    // marginTop: 32,
     marginBottom: 32,
     alignItems: 'center',
     justifyContent: 'center',
