@@ -1,7 +1,5 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
 import {
   Platform,
   Dimensions,
@@ -14,25 +12,17 @@ import {
   Text,
   TouchableOpacity,
   Keyboard,
-  Image,
 } from 'react-native';
 
-const image = require('../assets/photo.png');
-const imgeAdd = require('../assets/add.png');
+const image = require('../../assets/photo.png');
 const initialState = {
-  login: '',
   email: '',
   password: '',
 };
 const windowDimensions = Dimensions.get('window').width - 16 * 2;
 const screenDimensions = Dimensions.get('window').height;
 
-export default function RegistrationScreen() {
-  SplashScreen.preventAutoHideAsync();
-  const [fontsLoaded] = useFonts({
-    'Roboto-Regular': require('../assets/fonts/Roboto/Roboto-Regular.ttf'),
-    'Roboto-Medium': require('../assets/fonts/Roboto/Roboto-Medium.ttf'),
-  });
+export default function LoginScreen({ navigation }) {
   const [dimensions, setDimensions] = useState(windowDimensions);
   const [dimensionsHeigth, setDimensionsHeigth] = useState(screenDimensions);
 
@@ -48,7 +38,7 @@ export default function RegistrationScreen() {
     const onChange = () => {
       const width = Dimensions.get('window').width - 16 * 2;
       const height = Dimensions.get('window').height;
-
+      console.log(dimensions);
       setDimensions(width);
       setDimensionsHeigth(height);
     };
@@ -69,20 +59,12 @@ export default function RegistrationScreen() {
     console.log(state);
   };
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-  if (!fontsLoaded) {
-    return null;
-  }
   const passwordShown = () => {
     setShowPassword(prevState => !prevState);
   };
 
   return (
-    <View style={styles.container} onLayout={onLayoutRootView}>
+    <View style={styles.container}>
       <ImageBackground
         source={image}
         resizeMode="cover"
@@ -97,39 +79,14 @@ export default function RegistrationScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <View
-              style={{ ...styles.form, marginTop: isShowKeyboard ? 0 : 145 }}
+              style={{ ...styles.form, marginTop: isShowKeyboard ? 0 : 47 }}
             >
-              <View style={styles.photoBlock}>
-                <View style={styles.photo}></View>
-                <TouchableOpacity style={styles.buttonAdd}>
-                  <Image source={imgeAdd} />
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  width: dimensions,
-                }}
-              >
+              <View style={{ width: dimensions }}>
                 <View style={styles.header}>
-                  <Text style={styles.headerTitle}>Регистрация</Text>
+                  <Text style={styles.headerTitle}>Войти</Text>
                 </View>
+
                 <View>
-                  <TextInput
-                    style={focusInputStyle(loginFocus)}
-                    textAlign={'left'}
-                    onFocus={() => {
-                      setIsShowKeyboard(true);
-                      setLoginFocus(true);
-                    }}
-                    onBlur={() => setLoginFocus(false)}
-                    placeholder="Логин"
-                    value={state.login}
-                    onChangeText={value =>
-                      setState(prevState => ({ ...prevState, login: value }))
-                    }
-                  />
-                </View>
-                <View style={{ marginTop: 16 }}>
                   <TextInput
                     style={focusInputStyle(emailFocus)}
                     textAlign={'left'}
@@ -181,10 +138,16 @@ export default function RegistrationScreen() {
                   activeOpacity={0.8}
                   onPress={onSubmit}
                 >
-                  <Text style={styles.btnTitle}>Зарегистрироваться</Text>
+                  <Text style={styles.btnTitle}>Войти</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.link} activeOpacity={0.6}>
-                  <Text style={styles.linkTitle}>Уже есть аккаунт? Войти</Text>
+                <TouchableOpacity
+                  style={{ ...styles.link, marginBottom: 111 }}
+                  activeOpacity={0.6}
+                  onPress={() => navigation.navigate('Registration')}
+                >
+                  <Text style={styles.linkTitle}>
+                    Нет аккаунта? Зарегистрироваться
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -201,36 +164,17 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
 
+    width: '100%',
     justifyContent: 'flex-end',
   },
   form: {
+    paddingTop: 32,
     borderTopStartRadius: 25,
     borderTopEndRadius: 25,
     backgroundColor: '#f0ffff',
     alignItems: 'center',
   },
-  photoBlock: {
-    height: 120,
-    width: 120,
-    marginHorizontal: 127,
-    borderRadius: 16,
-    backgroundColor: 'transparent',
-    justifyContent: 'center',
-    alignItems: 'center',
-    top: -60,
-  },
-  buttonAdd: {
-    width: 25,
-    height: 25,
-    top: -30,
-    left: 55,
-  },
-  photo: {
-    width: 120,
-    height: 120,
-    borderRadius: 16,
-    backgroundColor: '#f6f6f6',
-  },
+
   input: {
     borderWidth: 1,
     borderColor: '#E8E8E8',
@@ -284,7 +228,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 16,
-    marginBottom: 45,
   },
   linkTitle: {
     color: '#1B4371',
