@@ -65,6 +65,10 @@ export default function RegistrationScreen({ navigation }) {
   const passwordShown = () => {
     setShowPassword(prevState => !prevState);
   };
+  const onFocus = () => {
+    setIsShowKeyboard(true);
+    setLoginFocus(true);
+  };
 
   return (
     <View style={styles.container}>
@@ -102,10 +106,7 @@ export default function RegistrationScreen({ navigation }) {
                   <TextInput
                     style={focusInputStyle(loginFocus)}
                     textAlign={'left'}
-                    onFocus={() => {
-                      setIsShowKeyboard(true);
-                      setLoginFocus(true);
-                    }}
+                    onFocus={() => onFocus()}
                     onBlur={() => setLoginFocus(false)}
                     placeholder="Логин"
                     value={state.login}
@@ -118,10 +119,7 @@ export default function RegistrationScreen({ navigation }) {
                   <TextInput
                     style={focusInputStyle(emailFocus)}
                     textAlign={'left'}
-                    onFocus={() => {
-                      setIsShowKeyboard(true);
-                      setEmailFocus(true);
-                    }}
+                    onFocus={() => onFocus()}
                     onBlur={() => setEmailFocus(false)}
                     placeholder="Адрес электронной почты"
                     value={state.email}
@@ -135,10 +133,7 @@ export default function RegistrationScreen({ navigation }) {
                     style={focusInputStyle(passwordFocus)}
                     textAlign={'left'}
                     secureTextEntry={showPassword}
-                    onFocus={() => {
-                      setIsShowKeyboard(true);
-                      setPasswordFocus(true);
-                    }}
+                    onFocus={() => onFocus()}
                     onBlur={() => setPasswordFocus(false)}
                     placeholder="Пароль"
                     maxLength={16}
@@ -168,7 +163,7 @@ export default function RegistrationScreen({ navigation }) {
                 >
                   <Text
                     style={styles.btnTitle}
-                    onPress={() => navigation.navigate('Login')}
+                    onPress={() => navigation.navigate('Home')}
                   >
                     Зарегистрироваться
                   </Text>

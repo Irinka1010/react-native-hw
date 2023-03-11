@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, StyleSheet, Text, Image } from 'react-native';
-const imgeAvatar = require('../../assets/rectangle.png');
+const imgeAvatar = require('../../assets/user.png');
 
 export default function PostsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.boxUser}>
-        <Image source={imgeAvatar} style={styles.avatar} />
+        <Image source={imgeAvatar} style={styles.avatar} alt={'user'} />
         <View style={{ marginLeft: 8 }}>
           <Text style={styles.nameUser}>Natali Romanova</Text>
           <Text style={styles.emailUser}>email@example.com</Text>
